@@ -6,6 +6,7 @@ import Products from "../Pages/Products";
 import Register from "../Pages/Register";
 import ProductDetails from "../Pages/ProductDetails";
 import Profile from "../Pages/Profile";
+import Cart from "../Pages/Cart";
 import ProtectedRoutes from "../utlis/ProtectedRoutes";
 
 const AppRoutes = () => {
@@ -13,23 +14,14 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/products" element={<Products />} />
-
-      {/* <Route
-        path="/profile"
-        element={
-          <ProtectedRoutes>
-            <Profile />
-          </ProtectedRoutes>
-        }
-      /> */}
+      <Route path="/products/:id" element={<ProductDetails />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/cart" element={<Cart />} />
 
       <Route element={<ProtectedRoutes />}>
         <Route path="/profile" element={<Profile />} />
         <Route path="/about" element={<About />} />
       </Route>
-
-      <Route path="/products/:id" element={<ProductDetails />} />
-      <Route path="/register" element={<Register />} />
     </Routes>
   );
 };

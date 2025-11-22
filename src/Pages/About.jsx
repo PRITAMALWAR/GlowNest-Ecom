@@ -14,7 +14,7 @@ const About = () => {
       </div>
 
       {/* Main Section */}
-      <div className="text-center py-16 bg-gray-100">
+      <div className="text-center py-16 bg-white">
         <h1 className="text-4xl font-bold mb-4">About Us</h1>
         <p className="text-lg text-gray-600 mb-8 px-4 sm:px-16">
           Welcome to our online store! We offer a wide range of high-quality products that cater to all your needs. Whether you're looking for beauty products, fragrances, or accessories, we've got you covered. Our goal is to provide you with an exceptional shopping experience that combines convenience, affordability, and top-notch customer service.

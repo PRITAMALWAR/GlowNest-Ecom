@@ -1,16 +1,28 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import Loader from "../Components/Common/Loader";
 import { useNavigate } from "react-router-dom";
-import { Star, Heart } from "lucide-react";
+import { Star, Heart, ShoppingCart } from "lucide-react";
+import { CartContext } from "../context/CartProvider";
+import { AuthContext } from "../context/AuthProvider";
+import { ToastContext } from "../context/ToastProvider";
+import Footer from "./Footer";
 
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const cartContext = useContext(CartContext);
+  const { isLoggedIn } = useContext(AuthContext);
+  const { showSuccess, showError, showWarning } = useContext(ToastContext);
   const [sortOrder, setSortOrder] = useState("none");
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [addedProductId, setAddedProductId] = useState(null);
+
+  // Safely get cart functions
+  const addToCart = cartContext?.addToCart || (() => {});
+  const isInCart = cartContext?.isInCart || (() => false);
 
   useEffect(() => {
     setLoading(true);
@@ -52,10 +64,26 @@ const Products = () => {
     setSortOrder(e.target.value);
   };
 
-  console.log(sortOrder);
+  const handleAddToCart = (product, e) => {
+    e.stopPropagation();
+    
+    // Check if user is logged in
+    if (!isLoggedIn) {
+      showWarning("Please login to add items to cart", 2000);
+      setTimeout(() => {
+        navigate("/register");
+      }, 2000);
+      return;
+    }
+    
+    // Add to cart if logged in
+    addToCart(product);
+    setAddedProductId(product.id);
+    showSuccess(`${product.title} added to cart!`);
+    setTimeout(() => setAddedProductId(null), 2000);
+  };
 
   const sortedProducts = () => {
-    console.log(selectedCategory);
     let filteredProducts =
       selectedCategory === "all"
         ? products
@@ -71,37 +99,52 @@ const Products = () => {
     });
   };
 
-  console.log(sortedProducts());
   return (
-    <div className="bg-gray-50 min-h-screen py-8">
+    <div className="bg-white min-h-screen py-8">
       <div className="container mx-auto px-4">
         {/* Header Section */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-800">
-            All Products{" "}
-            <span className="text-gray-500 text-lg">({products.length})</span>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            All Products
           </h1>
-          <div className="flex gap-4">
-            <select
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-4 py-2 border rounded-lg bg-white"
-            >
-              <option value="all">All Categories</option>
-              {categories.map((category) => (
-                <option value={category.slug}> {category.name}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex gap-4">
-            <select
-              onChange={handleSortChange}
-              className="px-4 py-2 border rounded-lg bg-white"
-            >
-              <option vlaue="none">Sort by</option>
-              <option value="l2h">Price: Low to High</option>
-              <option value="h2l">Price: High to Low</option>
-            </select>
+          <p className="text-gray-600 mb-6">
+            Discover our wide range of quality products
+          </p>
+          <div className="flex flex-wrap gap-4 items-center">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">
+                Category:
+              </label>
+              <select
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                value={selectedCategory}
+                className="px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All Categories</option>
+                {categories.map((category) => (
+                  <option key={category.slug} value={category.slug}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">
+                Sort by:
+              </label>
+              <select
+                onChange={handleSortChange}
+                value={sortOrder}
+                className="px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="none">Default</option>
+                <option value="l2h">Price: Low to High</option>
+                <option value="h2l">Price: High to Low</option>
+              </select>
+            </div>
+            <div className="ml-auto text-sm text-gray-600">
+              Showing {sortedProducts().length} products
+            </div>
           </div>
         </div>
 
@@ -200,18 +243,39 @@ const Products = () => {
                   )}
                 </p>
 
-                {/* Button */}
-                <button
-                  onClick={() => navigate(`/products/${product.id}`)}
-                  className="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition-colors duration-300"
-                >
-                  View Details
-                </button>
+                {/* Buttons */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => navigate(`/products/${product.id}`)}
+                    className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors duration-300 font-medium"
+                  >
+                    View Details
+                  </button>
+                  <button
+                    onClick={(e) => handleAddToCart(product, e)}
+                    disabled={product.stock === 0}
+                    className={`px-4 py-2 rounded-lg transition-colors duration-300 ${
+                      product.stock === 0
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : addedProductId === product.id
+                        ? "bg-green-600 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                    title={!isLoggedIn ? "Login to add to cart" : "Add to cart"}
+                  >
+                    <ShoppingCart
+                      className={`w-5 h-5 ${
+                        addedProductId === product.id ? "text-white" : ""
+                      }`}
+                    />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };
