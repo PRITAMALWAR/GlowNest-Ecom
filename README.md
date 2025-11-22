@@ -2,7 +2,7 @@
 
 A modern, full-featured e-commerce web application built with React. Shop for products, manage your cart, and enjoy a seamless shopping experience.
 
-## 🌐 Live Demo
+## 🌐 Live 
 
 **🔗 [View Live Project](https://glittery-donut-e66996.netlify.app/)**
 
@@ -47,36 +47,7 @@ A modern, full-featured e-commerce web application built with React. Shop for pr
 - **LocalStorage** - Data Persistence
 - **Lucide React** - Icons
 
-## 🚀 Quick Start
 
-### Prerequisites
-- Node.js (v14 or higher)
-- npm or yarn
-
-### Installation
-
-```bash
-# Clone the repository
-git clone <repository-url>
-
-# Navigate to project directory
-cd GlowNest-Ecom
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-```
-
-The app will open at `http://localhost:5173`
-
-### Build for Production
-
-```bash
-npm run build
-npm run preview
-```
 
 ## 📁 Project Structure
 
